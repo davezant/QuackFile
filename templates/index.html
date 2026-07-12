@@ -279,7 +279,49 @@
 
                 window.location.replace(data.redirect_url)
             }
+            function handleReceiveSubmit(e) {
+    e.preventDefault();
 
+    const input = document.getElementById("serialInput");
+    if (!input) return;
+
+    const code = input.value.trim();
+    if (!code) return;
+
+    const targetUrl = "/receive/" + code;
+
+    fetch(targetUrl)
+        .then(async (response) => {
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || "Code expired or not found");
+            }
+            return response;
+        })
+        .then(async (response) => {
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = downloadUrl;
+
+            const disposition = response.headers.get("content-disposition");
+            let filename = code + "_payload";
+            if (disposition && disposition.includes("filename=")) {
+                filename = disposition.split("filename=")[1].replace(/"/g, "");
+            }
+
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(downloadUrl);
+        })
+        .catch((error) => {
+            console.error("Download failed:", error);
+            alert(error.message || "An error occurred during download.");
+        });
+}
             function handleTextSubmit(e) {
                 e.preventDefault();
                 const textForm = e.target;
@@ -302,93 +344,35 @@
             }
 
             function bindPanelEvents() {
-                const receiveBtn = document.getElementById("receiveBtn");
-                const sendBtn = document.getElementById("sendBtn");
-                const backBtn = centralCard.querySelector('[data-action="back"]');
-                const serialForm = document.getElementById("serialForm");
-                const serialInput = document.getElementById("serialInput");
-                const textForm = document.getElementById("textForm");
-                const fileInput = document.getElementById("fileInput");
+    const receiveBtn = document.getElementById("receiveBtn");
+    const sendBtn = document.getElementById("sendBtn");
+    const backBtn = centralCard.querySelector('[data-action="back"]');
+    const serialForm = document.getElementById("serialForm");
+    const serialInput = document.getElementById("serialInput");
+    const textForm = document.getElementById("textForm");
+    const fileInput = document.getElementById("fileInput");
 
-                if (receiveBtn) receiveBtn.addEventListener("click", () => navigateTo("receive"));
-                if (sendBtn) sendBtn.addEventListener("click", () => navigateTo("send"));
-                if (backBtn) backBtn.addEventListener("click", () => navigateTo("menu"));
-                if (serialInput) serialInput.addEventListener("input", formatSerialInput);
-                if (fileInput) fileInput.addEventListener("change", handleFileSelected);
-                if (serialForm) {
-                    serialForm.addEventListener("submit", (e) => {
-                        e.preventDefault();
-                        if (!serialForm.checkValidity()) {
-                            serialForm.reportValidity();
-                            return;
-                        }
-                    });
-                }
-                if (textForm) textForm.addEventListener("submit", handleTextSubmit);
-            }
-            document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("serialForm");
-    const input = document.getElementById("serialInput");
-
-        input.addEventListener("input", (e) => {
-        let value = e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-        if (value.length > 3) {
-            value = value.slice(0, 3) + "-" + value.slice(3, 6);
-        }
-        e.target.value = value;
-    });
-
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const code = input.value.trim();
-        if (!code) return;
-
-        const targetUrl = `/receive/${code}`;
-
-        try {
-            const response = await fetch(targetUrl);
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                alert(errorData.message || "Code expired or not found");
+    if (receiveBtn) receiveBtn.addEventListener("click", () => navigateTo("receive"));
+    if (sendBtn) sendBtn.addEventListener("click", () => navigateTo("send"));
+    if (backBtn) backBtn.addEventListener("click", () => navigateTo("menu"));
+    if (serialInput) serialInput.addEventListener("input", formatSerialInput);
+    if (fileInput) fileInput.addEventListener("change", handleFileSelected);
+    
+    if (serialForm) {
+        serialForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            if (!serialForm.checkValidity()) {
+                serialForm.reportValidity();
                 return;
             }
-
-            const blob = await response.blob();
-            const downloadUrl = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = downloadUrl;
-
-            const disposition = response.headers.get("content-disposition");
-            let filename = "downloaded_file";
-            if (disposition && disposition.includes("filename=")) {
-                filename = disposition.split("filename=")[1].replace(/"/g, "");
-            } else if (code) {
-                filename = `${code}_payload`;
-            }
-
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            
-            // Limpa os elementos da memoria
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(downloadUrl);
-
-        } catch (error) {
-            console.error("Download failed:", error);
-            alert("Connection error or file expired.");
-        }
-    });
-
-    const backButton = document.querySelector('[data-action="back"]');
-    if (backButton) {
-        backButton.addEventListener("click", () => {
-            window.location.href = "/";
+            // Executa a funcao de envio e download
+            handleReceiveSubmit(e);
         });
     }
-});
+    
+    if (textForm) textForm.addEventListener("submit", handleTextSubmit);
+}
+           
             bindPanelEvents();
         </script>
     </body>
