@@ -4,3 +4,4 @@ cachetools
 werkzeug
 uvicorn
 asgiref
+cryptography
