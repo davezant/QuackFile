@@ -6,11 +6,10 @@ import time
 from flask import Blueprint, jsonify, render_template, request, send_file
 from lib.constants import TEMP_PATH, URL
 from werkzeug.utils import secure_filename
-from cachetools import TTLCache
+
+cache = []
 
 main_routes = Blueprint('main', __name__)
-
-TEMP_STORAGE = TTLCache(maxsize=10000, ttl=180)
 
 def generate_token():
     characters = string.ascii_uppercase + string.digits
@@ -52,7 +51,8 @@ def send():
                 f.write(msg)
 
     if file_path:
-        TEMP_STORAGE[token] = str(file_path)
+        file = {str(file_path): time.time()}
+        cache.append(file)
         return jsonify(code=200, status="success", id=token), 200
 
     return jsonify(code=400, status="error", msg="Invalid."), 400
@@ -61,7 +61,6 @@ def send():
 def receive_payload(code_id):
     target_path = None
     
-    # Varre o diretorio temporario buscando o arquivo com o prefixo do token
     if os.path.exists(TEMP_PATH):
         for f in os.listdir(TEMP_PATH):
             if f.startswith(code_id):
@@ -71,7 +70,6 @@ def receive_payload(code_id):
     if not target_path or not os.path.exists(target_path):
         return jsonify(code=404, status="error", message="Code expired or not found"), 404
 
-    # Valida o TTL de 3 minutos (180 segundos) usando metadados do arquivo
     file_creation_time = os.path.getmtime(target_path)
     if time.time() - file_creation_time > 180:
         try:
@@ -90,3 +88,7 @@ def receive_payload(code_id):
         pass
 
     return response
+
+@main_routes.route("/cancel/<code_id>")
+def cancel():
+    return ""

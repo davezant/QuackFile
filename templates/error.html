@@ -14,10 +14,60 @@
         </style>
     </head>
     <body class="bg-slate-300 w-full h-full overflow-x-hidden">
+        <canvas id="rainCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0"></canvas>
         <div class="min-w-screen min-h-screen flex justify-center items-center flex-row gap-4">
-            <h1 class="text-6xl font-bold">{{error}}</h1>
-            <p>{{msg}}</p>
-            <a class="text-white font-bold bg-red-400 p-2 rounded-md hidden" href="/"> RETURN </a>
+            <h1 class="text-6xl font-bold">{{ error }}</h1>
+            <p>{{ msg }}</p>
+            <a class="text-white font-bold bg-red-400 p-2 rounded-md hover:bg-red-500 transition cursor-pointer" href="/"> RETURN </a>
         </div>
     </body>
+    <script>
+            const canvas = document.getElementById("rainCanvas");
+            const ctx = canvas.getContext("2d");
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener("resize", resizeCanvas);
+
+            const maxDrops = 150;
+            const drops = [];
+
+            for (let i = 0; i < maxDrops; i++) {
+                drops.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    length: Math.random() * 20 + 10,
+                    speed: Math.random() * 15 + 10,
+                    opacity: Math.random() * 0.3 + 0.1
+                });
+            }
+
+            function drawRain() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let i = 0; i < maxDrops; i++) {
+                    const drop = drops[i];
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(100, 116, 139, ${drop.opacity})`;
+                    ctx.lineWidth = 1.5;
+                    ctx.moveTo(drop.x, drop.y);
+                    ctx.lineTo(drop.x, drop.y + drop.length);
+                    ctx.stroke();
+
+                    drop.y += drop.speed;
+
+                    if (drop.y > canvas.height) {
+                        drop.y = -drop.length;
+                        drop.x = Math.random() * canvas.width;
+                        drop.speed = Math.random() * 15 + 10;
+                    }
+                }
+
+                requestAnimationFrame(drawRain);
+            }
+            drawRain();
+        </script>
 </html>

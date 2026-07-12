@@ -1,16 +1,25 @@
 # main.py
 import uvicorn
-from flask import Flask
+from flask import Flask, render_template
 from routes import main_routes
 from asgiref.wsgi import WsgiToAsgi
 
 app = Flask(__name__)
-app.debug = False
+app.debug = True
 asgi_app = WsgiToAsgi(app)
 
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 app.register_blueprint(main_routes)
+
+@app.errorhandler(400)
+def bad_request(e):
+    return render_template("error.html", error=400,  msg="Bad Request.")
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("error.html", error=404, msg="Page not found.")
+
 
 if __name__ == "__main__":
     
