@@ -44,8 +44,10 @@ def send():
 
 @main_routes.route('/receive/<code_id>', methods=['GET'])
 def receive_payload(code_id):
+    if len(code_id) != 6:
+        return jsonify(code=400, status="error", message="Invalid code format"), 400
+
     target_path = None
-    
     if os.path.exists(TEMP_PATH):
         for f in os.listdir(TEMP_PATH):
             if f.startswith(code_id):
@@ -67,13 +69,27 @@ def receive_payload(code_id):
     response = send_file(target_path, as_attachment=as_attachment)
     
     try:
-        if os.path.exists(target_path):
-           os.remove(target_path)
+        os.remove(target_path)
     except OSError:
         pass
 
     return response
 
-@main_routes.route("/cancel/<code_id>")
-def cancel():
-    return ""
+@main_routes.route("/cancel/<code_id>", methods=['DELETE', 'POST', 'GET'])
+def cancel(code_id):
+    if len(code_id) <= 6:
+        return jsonify(code=400, status="error", message="Invalid code format"), 400
+
+    if not os.path.exists(TEMP_PATH):
+        return jsonify(code=404, status="error", message="File not found"), 404
+
+    for f in os.listdir(TEMP_PATH):
+        if f.startswith(code_id):
+            target_path = os.path.join(TEMP_PATH, f)
+            try:
+                os.remove(target_path)
+                return jsonify(code=200, status="success", message="Payload removed"), 200
+            except OSError:
+                return jsonify(code=500, status="error", message="Could not remove file"), 500
+
+    return jsonify(code=404, status="error", message="File not found or already removed"), 404

@@ -1,58 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR" class="h-full">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
         <style>
         body {
             font-family: "Montserrat", sans-serif;
-            font-optical-sizing: auto;
-            font-style: normal;
         }
         </style>
     </head>
-    <body class="bg-slate-300 w-full h-full overflow-x-hidden">
+    <body class="bg-slate-300 w-full h-full overflow-hidden select-none m-0 p-0">
         <canvas id="rainCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0"></canvas>
-        <div class="min-w-screen min-h-screen flex justify-center items-center flex-row gap-4">
-            <h1 class="text-6xl font-bold">{{ error }}</h1>
-            <p>{{ msg }}</p>
-            <a class="text-white font-bold bg-red-400 p-2 rounded-md hover:bg-red-500 transition cursor-pointer" href="/"> RETURN </a>
+        
+        <div class="relative z-10 w-full h-full min-h-svh flex flex-col justify-center items-center p-6 text-center box-border">
+            <div class="bg-[#FFD801] max-w-md w-full flex flex-col items-center gap-4 sm:gap-6 p-6 sm:p-8 rounded-2xl backdrop-blur-xs border border-slate-400/20 shadow-xl">
+                <h1 class="text-6xl sm:text-7xl md:text-8xl font-black text-slate-800 tracking-tight leading-none">
+                    {{ error }}
+                </h1>
+                <p class="text-slate-700 text-base sm:text-lg font-medium max-w-sm leading-relaxed break-words">
+                    {{ msg }}
+                </p>
+                <div class="w-full mt-2">
+                    <a class="inline-block w-full sm:w-auto text-center text-white font-bold bg-red-400 hover:bg-red-500 active:scale-[0.98] py-3 px-8 rounded-xl transition-all cursor-pointer shadow-md text-sm uppercase tracking-wider" href="/">
+                        Return
+                    </a>
+                </div>
+            </div>
         </div>
-    </body>
-    <script>
+
+        <script>
             const canvas = document.getElementById("rainCanvas");
             const ctx = canvas.getContext("2d");
+
+            let maxDrops = window.innerWidth < 640 ? 50 : 120;
+            const drops = [];
 
             function resizeCanvas() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+                
+                const newMax = window.innerWidth < 640 ? 50 : 120;
+                if (newMax !== maxDrops) {
+                    maxDrops = newMax;
+                    initDrops();
+                }
             }
-            resizeCanvas();
+
+            function initDrops() {
+                drops.length = 0;
+                for (let i = 0; i < maxDrops; i++) {
+                    drops.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        length: Math.random() * 15 + 8,
+                        speed: Math.random() * 10 + 6,
+                        opacity: Math.random() * 0.2 + 0.05
+                    });
+                }
+            }
+
             window.addEventListener("resize", resizeCanvas);
-
-            const maxDrops = 150;
-            const drops = [];
-
-            for (let i = 0; i < maxDrops; i++) {
-                drops.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    length: Math.random() * 20 + 10,
-                    speed: Math.random() * 15 + 10,
-                    opacity: Math.random() * 0.3 + 0.1
-                });
-            }
+            resizeCanvas();
+            initDrops();
 
             function drawRain() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 for (let i = 0; i < maxDrops; i++) {
                     const drop = drops[i];
+                    if (!drop) continue;
+
                     ctx.beginPath();
                     ctx.strokeStyle = `rgba(100, 116, 139, ${drop.opacity})`;
-                    ctx.lineWidth = 1.5;
+                    ctx.lineWidth = 1.2;
                     ctx.moveTo(drop.x, drop.y);
                     ctx.lineTo(drop.x, drop.y + drop.length);
                     ctx.stroke();
@@ -62,7 +86,7 @@
                     if (drop.y > canvas.height) {
                         drop.y = -drop.length;
                         drop.x = Math.random() * canvas.width;
-                        drop.speed = Math.random() * 15 + 10;
+                        drop.speed = Math.random() * 10 + 6;
                     }
                 }
 
@@ -70,4 +94,5 @@
             }
             drawRain();
         </script>
+    </body>
 </html>

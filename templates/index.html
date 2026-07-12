@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR" class="h-full">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,41 +23,42 @@
         }
         </style>
     </head>
-    <body class="bg-slate-300 w-full h-full overflow-x-hidden">
+    <body class="bg-slate-300 w-full h-full overflow-x-hidden m-0 p-0">
         <canvas id="rainCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0"></canvas>
 
-        <div class="bg-transparent min-w-screen min-h-screen relative z-10 flex flex-col">
-            <div class="flex items-center justify-center p-3 sm:p-4 flex-1">
-                <div id="centralCard" class="w-full max-w-2xl opacity-85 min-h-[80vh] sm:min-h-[400px] bg-[#FFD801] rounded-md p-6 sm:p-8 flex flex-col items-center justify-center gap-6 overflow-hidden">
+        <div class="min-h-svh w-full relative z-10 flex flex-col justify-between">
+            <div class="flex items-center justify-center p-4 flex-1 w-full max-w-xl mx-auto">
+                <div id="centralCard" class="w-full opacity-95 bg-[#FFD801] rounded-md p-5 sm:p-8 flex flex-col items-center justify-center gap-6 overflow-hidden shadow-lg">
                     <div class="panel w-full flex flex-col items-center justify-center gap-6">
-                        <div>
-                            <h1 class="text-3xl sm:text-4xl font-bold text-slate-800 text-center">Quack File</h1>
-                            <p class="text-slate-800 text-center max-w-md mt-4 text-base sm:text-sm px-2 sm:px-0">
+                        <div class="text-center">
+                            <h1 class="text-3xl font-bold text-slate-800">Quack File</h1>
+                            <p class="text-slate-800 max-w-md mt-3 text-sm px-2">
                                 Instantly share files and links between devices. Send and receive directly.
-                                <br>
-                                Filesize needs to be &lt; 50 MB
+                                <br class="hidden sm:block">
+                                <span class="font-semibold block mt-1">Filesize needs to be &lt; 50 MB</span>
                             </p>
                         </div>
-                        <div class="w-full flex flex-col items-center">
-                            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-xs sm:max-w-none justify-center">
-                                <button id="receiveBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 sm:py-3 px-6 rounded shadow transition w-full sm:w-40 cursor-pointer">
+                        <div class="w-full flex flex-col items-center gap-4">
+                            <div class="flex flex-col sm:flex-row gap-3 w-full max-w-xs sm:max-w-none justify-center">
+                                <button id="receiveBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded shadow transition w-full sm:w-40 cursor-pointer text-center">
                                     Receive
                                 </button>
-                                <button id="sendBtn" class="bg-slate-800 hover:bg-slate-900 text-white font-medium py-4 sm:py-3 px-6 rounded shadow transition w-full sm:w-40 cursor-pointer">
+                                <button id="sendBtn" class="bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 px-6 rounded shadow transition w-full sm:w-40 cursor-pointer text-center">
                                     Send
                                 </button>
                             </div>
 
-                            <p class="text-slate-800 text-center text-base sm:text-sm max-w-md mt-4 px-2 sm:px-0">
-                                ℹ️Everything you send is indexed and encrypted. Once the recipient downloads the file, it is gone forever.
-                                <a class="text-slate-600 underline ml-1" href="https://www.heifer.org/give/gift-catalog/animals/flock-of-ducks">Also, Donate to ducks!</a>
+                            <p class="text-slate-800 text-center text-xs max-w-md mt-2 px-2">
+                                ℹ️ Everything you send is indexed and encrypted. Once the recipient downloads the file, it is gone forever.
+                                <br class="sm:hidden">
+                                <a class="text-slate-600 underline inline-block mt-2 sm:mt-0 sm:ml-1" href="https://www.heifer.org/give/gift-catalog/animals/flock-of-ducks" target="_blank" rel="noopener">Also, Donate to ducks!</a>
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
-            <footer class="text-center pb-4">
-                <p class="text-slate-600 text-xs">made by davezant</p>
+            <footer class="text-center pb-4 w-full">
+                <p class="text-slate-600 text-xs tracking-wider">made by davezant</p>
             </footer>
         </div>
 
@@ -70,40 +73,36 @@
             resizeCanvas();
             window.addEventListener("resize", resizeCanvas);
 
-            const maxDrops = 150;
+            const maxDrops = 100; 
             const drops = [];
 
             for (let i = 0; i < maxDrops; i++) {
                 drops.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    length: Math.random() * 20 + 10,
-                    speed: Math.random() * 15 + 10,
-                    opacity: Math.random() * 0.3 + 0.1
+                    length: Math.random() * 15 + 10,
+                    speed: Math.random() * 10 + 8,
+                    opacity: Math.random() * 0.2 + 0.1
                 });
             }
 
             function drawRain() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-
                 for (let i = 0; i < maxDrops; i++) {
                     const drop = drops[i];
                     ctx.beginPath();
                     ctx.strokeStyle = `rgba(100, 116, 139, ${drop.opacity})`;
-                    ctx.lineWidth = 1.5;
+                    ctx.lineWidth = 1.2;
                     ctx.moveTo(drop.x, drop.y);
                     ctx.lineTo(drop.x, drop.y + drop.length);
                     ctx.stroke();
 
                     drop.y += drop.speed;
-
                     if (drop.y > canvas.height) {
                         drop.y = -drop.length;
                         drop.x = Math.random() * canvas.width;
-                        drop.speed = Math.random() * 15 + 10;
                     }
                 }
-
                 requestAnimationFrame(drawRain);
             }
             drawRain();
@@ -113,46 +112,45 @@
             const templates = {
                 menu: `
                     <div class="panel w-full flex flex-col items-center justify-center gap-6">
-                        <div>
-                            <h1 class="text-3xl sm:text-4xl font-bold text-slate-800 text-center">Quack File</h1>
-                            <p class="text-slate-800 text-center max-w-md mt-4 text-base sm:text-sm px-2 sm:px-0">
+                        <div class="text-center">
+                            <h1 class="text-3xl font-bold text-slate-800">Quack File</h1>
+                            <p class="text-slate-800 max-w-md mt-3 text-sm px-2">
                                 Instantly share files and links between devices. Send and receive directly.
-                                <br>
-                                Filesize needs to be &lt; 50 MB
+                                <br class="hidden sm:block">
+                                <span class="font-semibold block mt-1">Filesize needs to be &lt; 50 MB</span>
                             </p>
                         </div>
-                        <div class="w-full flex flex-col items-center">
-                            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-xs sm:max-w-none justify-center">
-                                <button id="receiveBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 sm:py-3 px-6 rounded shadow transition w-full sm:w-40 cursor-pointer">
+                        <div class="w-full flex flex-col items-center gap-4">
+                            <div class="flex flex-col sm:flex-row gap-3 w-full max-w-xs sm:max-w-none justify-center">
+                                <button id="receiveBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded shadow transition w-full sm:w-40 cursor-pointer">
                                     Receive
                                 </button>
-                                <button id="sendBtn" class="bg-slate-800 hover:bg-slate-900 text-white font-medium py-4 sm:py-3 px-6 rounded shadow transition w-full sm:w-40 cursor-pointer">
+                                <button id="sendBtn" class="bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 px-6 rounded shadow transition w-full sm:w-40 cursor-pointer">
                                     Send
                                 </button>
                             </div>
-
-                            <p class="text-slate-800 text-center text-base sm:text-sm max-w-md mt-4 px-2 sm:px-0">
+                            <p class="text-slate-800 text-center text-xs max-w-md mt-2 px-2">
                                 ℹ️ Everything you send is indexed and encrypted. Once the recipient downloads the file, it is gone forever.
-                                <a class="text-slate-600 underline ml-1" href="https://www.heifer.org/give/gift-catalog/animals/flock-of-ducks">Also, Donate to ducks!</a>
+                                <a class="text-slate-600 underline inline-block mt-2 sm:mt-0 sm:ml-1" href="https://www.heifer.org/give/gift-catalog/animals/flock-of-ducks" target="_blank" rel="noopener">Also, Donate to ducks!</a>
                             </p>
                         </div>
                     </div>
                 `,
                 receive: `
-                    <div class="panel w-full flex flex-col items-center justify-center gap-6">
+                    <div class="panel w-full flex flex-col items-center justify-center gap-5">
                         <div class="text-center">
-                            <h2 class="text-3xl sm:text-4xl font-bold text-slate-800">Receive a File</h2>
-                            <p class="text-slate-700 text-base sm:text-sm mt-2 px-2 sm:px-0">Enter the key code to download the shared file.</p>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-slate-800">Receive a File</h2>
+                            <p class="text-slate-700 text-sm mt-1 px-2">Enter the key code to download the shared file.</p>
                         </div>
                         <div class="w-full max-w-xs flex flex-col gap-4">
                             <form id="serialForm" class="flex flex-col gap-4">
-                                <input type="text" id="serialInput" placeholder="e.g., A1B-2C3" required maxlength="7" pattern="[A-Za-z0-9]{3}-[A-Za-z0-9]{3}" title="Use the format ABC-123: 3 letters or numbers, a dash, then 3 more." autocapitalize="characters" autocomplete="off" spellcheck="false" class="w-full px-4 py-3 rounded bg-white text-slate-800 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-center font-semibold tracking-wider">
-                                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                                    <button type="button" data-action="back" class="w-full sm:w-1/2 bg-slate-600 hover:bg-slate-700 text-white font-medium py-3 sm:py-2 px-4 rounded transition cursor-pointer">
-                                        Back
-                                    </button>
-                                    <button type="submit" class="w-full sm:w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 sm:py-2 px-4 rounded shadow transition cursor-pointer">
+                                <input type="text" id="serialInput" placeholder="e.g., A1B-2C3" required maxlength="7" pattern="[A-Za-z0-9]{3}-[A-Za-z0-9]{3}" title="Use the format ABC-123: 3 letters or numbers, a dash, then 3 more." autocapitalize="characters" autocomplete="off" spellcheck="false" class="w-full px-4 py-3 rounded bg-white text-slate-800 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-center font-semibold tracking-wider text-lg">
+                                <div class="flex flex-col gap-2 w-full">
+                                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded shadow transition cursor-pointer order-1">
                                         Download
+                                    </button>
+                                    <button type="button" data-action="back" class="w-full bg-slate-600 hover:bg-slate-700 text-white font-medium py-3 px-4 rounded transition cursor-pointer order-2">
+                                        Back
                                     </button>
                                 </div>
                             </form>
@@ -160,32 +158,32 @@
                     </div>
                 `,
                 send: `
-                    <div class="panel w-full flex flex-col items-center justify-center gap-6">
+                    <div class="panel w-full flex flex-col items-center justify-center gap-5">
                         <div class="text-center">
-                            <h2 class="text-3xl sm:text-4xl font-bold text-slate-800">Send a File</h2>
-                            <p class="text-slate-700 text-base sm:text-sm mt-2 px-2 sm:px-0">Upload your file. Remember, <a class="underline">the limit is 50 MB.</a> and it has <a class="underline"> 3 minutes to expirate.</a></p>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-slate-800">Send a File</h2>
+                            <p class="text-slate-700 text-sm mt-1 px-2">Upload your file. Limit is 50 MB. It expires in 3 minutes.</p>
                         </div>
-                        <div class="w-full max-w-md flex flex-col gap-5 items-center">
-                            <label id="fileDropLabel" class="w-full border-2 border-dashed border-slate-600 rounded-md p-6 sm:p-8 text-center cursor-pointer hover:bg-yellow-100/50 transition flex flex-col items-center gap-2">
-                                <span id="fileLabelText" class="text-slate-800 font-medium">Click to upload or drag file here</span>
+                        <div class="w-full flex flex-col gap-4 items-center">
+                            <label id="fileDropLabel" class="w-full border-2 border-dashed border-slate-600 rounded-md p-5 text-center cursor-pointer hover:bg-yellow-100/50 transition flex flex-col items-center gap-1">
+                                <span id="fileLabelText" class="text-slate-800 font-medium text-sm break-all">Click to upload or drag file here</span>
                                 <span class="text-xs text-slate-600">PDF, ZIP, PNG, etc.</span>
                                 <input type="file" id="fileInput" class="hidden">
                             </label>
 
-                            <div class="w-full flex items-center gap-3">
+                            <div class="w-full flex items-center gap-3 my-1">
                                 <div class="flex-1 h-px bg-slate-800/20"></div>
-                                <span class="text-xs font-semibold uppercase tracking-wider text-slate-600">or send text</span>
+                                <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-600">or send text</span>
                                 <div class="flex-1 h-px bg-slate-800/20"></div>
                             </div>
 
-                            <form id="textForm" class="w-full flex flex-col sm:flex-row gap-3">
-                                <input type="text" id="textInput" placeholder="Paste text or a link" required class="w-full px-4 py-3 rounded bg-white text-slate-800 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600">
-                                <button type="submit" class="w-full sm:w-auto sm:shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded shadow transition cursor-pointer">
-                                    Send
+                            <form id="textForm" class="w-full flex flex-col gap-2">
+                                <input type="text" id="textInput" placeholder="Paste text or a link" required class="w-full px-4 py-3 rounded bg-white text-slate-800 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm">
+                                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded shadow transition cursor-pointer">
+                                    Send Text
                                 </button>
                             </form>
 
-                            <button type="button" data-action="back" class="bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 sm:py-2 px-6 rounded transition w-full sm:w-40 cursor-pointer">
+                            <button type="button" data-action="back" class="bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 px-6 rounded transition w-full cursor-pointer mt-1">
                                 Back
                             </button>
                         </div>
@@ -193,8 +191,8 @@
                 `
             };
 
-            const FADE_OUT_MS = 180;
-            const FADE_IN_MS = 280;
+            const FADE_OUT_MS = 140; 
+            const FADE_IN_MS = 200;
             const EASE_OUT = "cubic-bezier(0.4, 0, 1, 1)";
             const EASE_IN = "cubic-bezier(0, 0, 0.2, 1)";
             const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -220,14 +218,14 @@
 
                 oldPanel.style.transition = `opacity ${FADE_OUT_MS}ms ${EASE_OUT}, transform ${FADE_OUT_MS}ms ${EASE_OUT}`;
                 oldPanel.style.opacity = "0";
-                oldPanel.style.transform = "translateY(-6px) scale(0.98)";
+                oldPanel.style.transform = "translateY(-4px) scale(0.99)";
 
                 setTimeout(() => {
                     centralCard.innerHTML = html;
                     const newPanel = centralCard.querySelector(".panel");
                     newPanel.style.transition = "none";
                     newPanel.style.opacity = "0";
-                    newPanel.style.transform = "translateY(6px) scale(0.98)";
+                    newPanel.style.transform = "translateY(4px) scale(0.99)";
 
                     centralCard.style.transition = "none";
                     centralCard.style.height = "auto";
@@ -249,7 +247,7 @@
                         centralCard.style.height = "auto";
                         isAnimating = false;
                         bindPanelEvents();
-                    }, FADE_IN_MS + 20);
+                    }, FADE_IN_MS + 10);
                 }, FADE_OUT_MS);
             }
 
@@ -274,55 +272,59 @@
                     method: "POST",
                     body: formData
                 })
-                    .then((response) => response.json())
-                    .then((data) => window.location.replace("r/"+data.id))
-                    .catch((error) => console.error("Upload failed:", error));
-
-                window.location.replace(data.redirect_url)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.id) {
+                        window.location.replace("r/" + data.id);
+                    } else if (data.redirect_url) {
+                        window.location.replace(data.redirect_url);
+                    }
+                })
+                .catch((error) => console.error("Upload failed:", error));
             }
+
             function handleReceiveSubmit(e) {
-    e.preventDefault();
+                e.preventDefault();
+                const input = document.getElementById("serialInput");
+                if (!input) return;
 
-    const input = document.getElementById("serialInput");
-    if (!input) return;
+                const code = input.value.trim();
+                if (!code) return;
 
-    const code = input.value.trim();
-    if (!code) return;
+                const targetUrl = "/receive/" + code;
 
-    const targetUrl = "/receive/" + code;
+                fetch(targetUrl)
+                .then(async (response) => {
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.message || "Code expired or not found");
+                    }
+                    return response;
+                })
+                .then(async (response) => {
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = downloadUrl;
 
-    fetch(targetUrl)
-        .then(async (response) => {
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.message || "Code expired or not found");
+                    const disposition = response.headers.get("content-disposition");
+                    let filename = code + "_payload";
+                    if (disposition && disposition.includes("filename=")) {
+                        filename = disposition.split("filename=")[1].replace(/"/g, "");
+                    }
+
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(downloadUrl);
+                })
+                .catch((error) => {
+                    console.error("Download failed:", error);
+                    alert(error.message || "An error occurred during download.");
+                });
             }
-            return response;
-        })
-        .then(async (response) => {
-            const blob = await response.blob();
-            const downloadUrl = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = downloadUrl;
 
-            const disposition = response.headers.get("content-disposition");
-            let filename = code + "_payload";
-            if (disposition && disposition.includes("filename=")) {
-                filename = disposition.split("filename=")[1].replace(/"/g, "");
-            }
-
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(downloadUrl);
-        })
-        .catch((error) => {
-            console.error("Download failed:", error);
-            alert(error.message || "An error occurred during download.");
-        });
-}
             function handleTextSubmit(e) {
                 e.preventDefault();
                 const textForm = e.target;
@@ -339,41 +341,40 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ text })
                 })
-                    .then((response) => response.json())
-                    .then((data) => window.location.replace("r/"+data.id))
-                    .catch((error) => console.error("Send failed:", error));
+                .then((response) => response.json())
+                .then((data) => window.location.replace("r/" + data.id))
+                .catch((error) => console.error("Send failed:", error));
             }
 
             function bindPanelEvents() {
-    const receiveBtn = document.getElementById("receiveBtn");
-    const sendBtn = document.getElementById("sendBtn");
-    const backBtn = centralCard.querySelector('[data-action="back"]');
-    const serialForm = document.getElementById("serialForm");
-    const serialInput = document.getElementById("serialInput");
-    const textForm = document.getElementById("textForm");
-    const fileInput = document.getElementById("fileInput");
+                const receiveBtn = document.getElementById("receiveBtn");
+                const sendBtn = document.getElementById("sendBtn");
+                const backBtn = centralCard.querySelector('[data-action="back"]');
+                const serialForm = document.getElementById("serialForm");
+                const serialInput = document.getElementById("serialInput");
+                const textForm = document.getElementById("textForm");
+                const fileInput = document.getElementById("fileInput");
 
-    if (receiveBtn) receiveBtn.addEventListener("click", () => navigateTo("receive"));
-    if (sendBtn) sendBtn.addEventListener("click", () => navigateTo("send"));
-    if (backBtn) backBtn.addEventListener("click", () => navigateTo("menu"));
-    if (serialInput) serialInput.addEventListener("input", formatSerialInput);
-    if (fileInput) fileInput.addEventListener("change", handleFileSelected);
-    
-    if (serialForm) {
-        serialForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            if (!serialForm.checkValidity()) {
-                serialForm.reportValidity();
-                return;
+                if (receiveBtn) receiveBtn.addEventListener("click", () => navigateTo("receive"));
+                if (sendBtn) sendBtn.addEventListener("click", () => navigateTo("send"));
+                if (backBtn) backBtn.addEventListener("click", () => navigateTo("menu"));
+                if (serialInput) serialInput.addEventListener("input", formatSerialInput);
+                if (fileInput) fileInput.addEventListener("change", handleFileSelected);
+                
+                if (serialForm) {
+                    serialForm.addEventListener("submit", (e) => {
+                        e.preventDefault();
+                        if (!serialForm.checkValidity()) {
+                            serialForm.reportValidity();
+                            return;
+                        }
+                        handleReceiveSubmit(e);
+                    });
+                }
+                
+                if (textForm) textForm.addEventListener("submit", handleTextSubmit);
             }
-            // Executa a funcao de envio e download
-            handleReceiveSubmit(e);
-        });
-    }
-    
-    if (textForm) textForm.addEventListener("submit", handleTextSubmit);
-}
-           
+            
             bindPanelEvents();
         </script>
     </body>

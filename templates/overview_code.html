@@ -1,100 +1,139 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR" class="h-full">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+        <title>QuackFile - Share</title>
         <style>
-        body {
-            font-family: "Montserrat", sans-serif;
-            font-optical-sizing: auto;
-            font-style: normal;
-        }
+        body { font-family: "Montserrat", sans-serif; }
         </style>
     </head>
-     <body class="bg-slate-300 w-full h-full overflow-x-hidden">
-         <canvas id="rainCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0"></canvas>
-            <div class="min-w-screen min-h-screen flex items-center justify-center">
-                <div class="flex flex-row gap-4">
-                    <div>
-                        <h1 class="text-xl font-bold text-slate-600">Share your files to another device.</h1>
-                        <p class="text-md text-slate-600"> {{ text }}</p>
-                        <a class="bg-red-400 p-2 rounded-md font-bold text-white cursor-pointer hover:bg-red-500 transition" href="/" >CANCEL</a>
+    <body class="bg-slate-300 w-full h-full m-0 p-0 overflow-x-hidden">
+        <canvas id="rainCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0"></canvas>
+        
+        <div class="min-h-svh w-full relative z-10 flex flex-col justify-between">
+            <div class="flex items-center justify-center p-4 flex-1 w-full max-w-4xl mx-auto">
+                <div class="w-full bg-[#FFD801] rounded-md p-6 sm:p-10 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-lg">
+                    
+                    <div class="w-full lg:w-1/2 flex flex-col justify-between items-center lg:items-start text-center lg:text-left gap-6">
+                        <div>
+                            <h1 class="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">Share your files to another device.</h1>
+                            <p class="text-slate-700 mt-3 text-sm font-medium p-3 rounded' break-all max-w-md">
+                                {{ text }}
+                            </p>
+                        </div>
+                        <button id="cancelBtn" data-url="/cancel/{{ code }}" class="w-full sm:w-auto text-center bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-8 rounded shadow transition cursor-pointer text-sm tracking-wider uppercase">
+                            Cancel
+                        </button>
                     </div>
-                    <div class="w-100 h-100 bg-white rounded-2xl flex flex-col items-center pt-3">
-                        <h1 class="text-2xl font-bold"> QRCODE </h1>
-                         <img id="qrcode-img" class="responsive-img" 
-                            alt="Dynamic QR Code" 
-                            width="300" 
-                            height="300">
-                        <h1 class="text-4xl font-bold"> {{ code }}</h1>
+
+                    <div class="w-full max-w-xs sm:max-w-sm lg:w-1/2 bg-white rounded-xl p-6 flex flex-col items-center gap-5 shadow-sm">
+                        <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">QRCODE</h2>
+                        
+                        <div class="p-2 rounded-lg flex items-center justify-center">
+                            <img id="qrcode-img" class="w-48 h-48 sm:w-56 sm:h-56 object-contain" alt="Dynamic QR Code">
+                        </div>
+                        
+                        <div class="px-6 py-2 rounded-md font-mono text-2xl sm:text-3xl font-bold text-slate-800 tracking-widest">
+                            {{ code }}
+                        </div>
                     </div>
+
                 </div>
             </div>
+            <footer class="text-center pb-4 w-full">
+                <p class="text-slate-600 text-xs tracking-wider">made by davezant</p>
+            </footer>
+        </div>
 
-            <script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    const code = "{{ code }}";
-                    const targetUrl = `{{ current_url }}receive/${code}`;
-                    const imgElement = document.getElementById('qrcode-img');
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const code = "{{ code }}";
+                const targetUrl = `{{ current_url }}receive/${code}`;
+                const imgElement = document.getElementById('qrcode-img');
 
-                    QRCode.toDataURL(targetUrl, { width: 300, margin: 2 }, function (err, src) {
-                        if (!err) {
-                            imgElement.src = src;
-                        }
-                    });
+                QRCode.toDataURL(targetUrl, { 
+                    width: 300, 
+                    margin: 2,
+                    color: { dark: "#1e293b", light: "#ffffff" }
+                }, function (err, src) {
+                    if (!err) imgElement.src = src;
                 });
 
-                const canvas = document.getElementById("rainCanvas");
-                const ctx = canvas.getContext("2d");
+                const cancelBtn = document.getElementById('cancelBtn');
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const url = this.getAttribute('data-url');
 
-                function resizeCanvas() {
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerHeight;
-                }
-                resizeCanvas();
-                window.addEventListener("resize", resizeCanvas);
-
-                const maxDrops = 150;
-                const drops = [];
-
-                for (let i = 0; i < maxDrops; i++) {
-                    drops.push({
-                        x: Math.random() * canvas.width,
-                        y: Math.random() * canvas.height,
-                        length: Math.random() * 20 + 10,
-                        speed: Math.random() * 15 + 10,
-                        opacity: Math.random() * 0.3 + 0.1
+                        fetch(url, { method: 'GET' })
+                            .then(response => {
+                                if (response.ok) {
+                                    alert('Transferência cancelada com sucesso.');
+                                } else if (response.status === 404) {
+                                    alert('Esta transferência não existe ou já foi encerrada.');
+                                } else {
+                                    alert('Erro ao tentar processar o cancelamento.');
+                                }
+                            })
+                            .catch(() => {
+                                alert('Erro de conexão com o servidor.');
+                            })
+                            .finally(() => {
+                                window.location.href = '/';
+                            });
                     });
                 }
+            });
 
-                function drawRain() {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-                    for (let i = 0; i < maxDrops; i++) {
-                        const drop = drops[i];
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(100, 116, 139, ${drop.opacity})`;
-                        ctx.lineWidth = 1.5;
-                        ctx.moveTo(drop.x, drop.y);
-                        ctx.lineTo(drop.x, drop.y + drop.length);
-                        ctx.stroke();
+            const canvas = document.getElementById("rainCanvas");
+            const ctx = canvas.getContext("2d");
 
-                        drop.y += drop.speed;
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener("resize", resizeCanvas);
 
-                        if (drop.y > canvas.height) {
-                            drop.y = -drop.length;
-                            drop.x = Math.random() * canvas.width;
-                            drop.speed = Math.random() * 15 + 10;
-                        }
+            const maxDrops = 100;
+            const drops = [];
+
+            for (let i = 0; i < maxDrops; i++) {
+                drops.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    length: Math.random() * 15 + 10,
+                    speed: Math.random() * 10 + 8,
+                    opacity: Math.random() * 0.2 + 0.1
+                });
+            }
+
+            function drawRain() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < maxDrops; i++) {
+                    const drop = drops[i];
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(100, 116, 139, ${drop.opacity})`;
+                    ctx.lineWidth = 1.2;
+                    ctx.moveTo(drop.x, drop.y);
+                    ctx.lineTo(drop.x, drop.y + drop.length);
+                    ctx.stroke();
+
+                    drop.y += drop.speed;
+                    if (drop.y > canvas.height) {
+                        drop.y = -drop.length;
+                        drop.x = Math.random() * canvas.width;
                     }
-
-                    requestAnimationFrame(drawRain);
                 }
-                drawRain();
-
-            </script>
-     </body>
+                requestAnimationFrame(drawRain);
+            }
+            drawRain();
+        </script>
+    </body>
 </html>
