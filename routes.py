@@ -83,12 +83,10 @@ def receive_payload(code_id):
     as_attachment = not target_path.endswith('.txt')
     response = send_file(target_path, as_attachment=as_attachment)
     
-    @response.call_on_close
-    def delete_immediately():
-        try:
-            if os.path.exists(target_path):
-                os.remove(target_path)
-        except OSError:
-            pass
+    try:
+        if os.path.exists(target_path):
+           os.remove(target_path)
+    except OSError:
+        pass
 
     return response
