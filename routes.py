@@ -1,21 +1,16 @@
-# routes.py
 import os
-import secrets
-import string
 import time
 from flask import Blueprint, jsonify, render_template, request, send_file
 from lib.constants import TEMP_PATH, URL
-from werkzeug.utils import secure_filename
+from lib.storage import generate_token, save_text_payload, save_uploaded_file
 
 cache = []
 
 main_routes = Blueprint('main', __name__)
 
-def generate_token():
-    characters = string.ascii_uppercase + string.digits
-    first_half = ''.join(secrets.choice(characters) for _ in range(3))
-    second_half = ''.join(secrets.choice(characters) for _ in range(3))
-    return f"{first_half}-{second_half}"
+def register_in_cache(file_path):
+    file_entry = {str(file_path): time.time()}
+    cache.append(file_entry)
 
 @main_routes.route('/')
 def home():
@@ -31,28 +26,18 @@ def send():
     file_path = None
     
     if 'uploadedFile' in request.files:
-        file = request.files['uploadedFile']
-        if file and file.filename:
-            ext = os.path.splitext(secure_filename(file.filename))[1]
-            filename = f"{token}{ext}"
-            file_path = os.path.join(TEMP_PATH, filename)
-            file.save(file_path)
+        file_path = save_uploaded_file(request.files['uploadedFile'], token)
 
     if not file_path:
         msg = request.form.get('text')
         if not msg and request.is_json:
             json_data = request.get_json()
             msg = json_data.get('text') if json_data else None
-
-        if msg:
-            filename = f"{token}.txt"
-            file_path = os.path.join(TEMP_PATH, filename)
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(msg)
+        
+        file_path = save_text_payload(msg, token)
 
     if file_path:
-        file = {str(file_path): time.time()}
-        cache.append(file)
+        register_in_cache(file_path)
         return jsonify(code=200, status="success", id=token), 200
 
     return jsonify(code=400, status="error", msg="Invalid."), 400
