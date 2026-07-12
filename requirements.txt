@@ -1,2 +1,6 @@
 Flask
 livereload
+cachetools
+werkzeug
+uvicorn
+asgiref

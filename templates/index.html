@@ -23,9 +23,9 @@
     <body class="bg-slate-300 w-full h-full overflow-x-hidden">
         <canvas id="rainCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0"></canvas>
 
-        <div class="bg-transparent min-w-screen min-h-screen relative z-10">
-            <div class="flex items-center justify-center p-3 sm:p-4 min-h-screen">
-                <div id="centralCard" class="w-full max-w-2xl opacity-85 min-h-[80vh] sm:min-h-[420px] bg-[#FFD801] rounded-md p-6 sm:p-8 flex flex-col items-center justify-center gap-6 overflow-hidden">
+        <div class="bg-transparent min-w-screen min-h-screen relative z-10 flex flex-col">
+            <div class="flex items-center justify-center p-3 sm:p-4 flex-1">
+                <div id="centralCard" class="w-full max-w-2xl opacity-85 min-h-[80vh] sm:min-h-[400px] bg-[#FFD801] rounded-md p-6 sm:p-8 flex flex-col items-center justify-center gap-6 overflow-hidden">
                     <div class="panel w-full flex flex-col items-center justify-center gap-6">
                         <div>
                             <h1 class="text-3xl sm:text-4xl font-bold text-slate-800 text-center">Quack File</h1>
@@ -53,6 +53,9 @@
                     </div>
                 </div>
             </div>
+            <footer class="text-center pb-4">
+                <p class="text-slate-600 text-xs">made by davezant</p>
+            </footer>
         </div>
 
         <script>
@@ -159,14 +162,28 @@
                     <div class="panel w-full flex flex-col items-center justify-center gap-6">
                         <div class="text-center">
                             <h2 class="text-3xl sm:text-4xl font-bold text-slate-800">Send a File</h2>
-                            <p class="text-slate-700 text-base sm:text-sm mt-2 px-2 sm:px-0">Upload your file. Remember, <a class="underline">the limit is 50 MB.</a></p>
+                            <p class="text-slate-700 text-base sm:text-sm mt-2 px-2 sm:px-0">Upload your file. Remember, <a class="underline">the limit is 50 MB.</a> and it has <a class="underline"> 3 minutes to expirate.</a></p>
                         </div>
-                        <div class="w-full max-w-md flex flex-col gap-4 items-center">
-                            <label class="w-full border-2 border-dashed border-slate-600 rounded-md p-6 sm:p-8 text-center cursor-pointer hover:bg-yellow-100/50 transition flex flex-col items-center gap-2">
-                                <span class="text-slate-800 font-medium">Click to upload or drag file here</span>
+                        <div class="w-full max-w-md flex flex-col gap-5 items-center">
+                            <label id="fileDropLabel" class="w-full border-2 border-dashed border-slate-600 rounded-md p-6 sm:p-8 text-center cursor-pointer hover:bg-yellow-100/50 transition flex flex-col items-center gap-2">
+                                <span id="fileLabelText" class="text-slate-800 font-medium">Click to upload or drag file here</span>
                                 <span class="text-xs text-slate-600">PDF, ZIP, PNG, etc.</span>
-                                <input type="file" class="hidden">
+                                <input type="file" id="fileInput" class="hidden">
                             </label>
+
+                            <div class="w-full flex items-center gap-3">
+                                <div class="flex-1 h-px bg-slate-800/20"></div>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-slate-600">or send text</span>
+                                <div class="flex-1 h-px bg-slate-800/20"></div>
+                            </div>
+
+                            <form id="textForm" class="w-full flex flex-col sm:flex-row gap-3">
+                                <input type="text" id="textInput" placeholder="Paste text or a link" required class="w-full px-4 py-3 rounded bg-white text-slate-800 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                                <button type="submit" class="w-full sm:w-auto sm:shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded shadow transition cursor-pointer">
+                                    Send
+                                </button>
+                            </form>
+
                             <button type="button" data-action="back" class="bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 sm:py-2 px-6 rounded transition w-full sm:w-40 cursor-pointer">
                                 Back
                             </button>
@@ -242,17 +259,62 @@
                 e.target.value = value;
             }
 
+            function handleFileSelected(e) {
+                const file = e.target.files[0];
+                const fileLabelText = document.getElementById("fileLabelText");
+                if (!file) return;
+
+                if (fileLabelText) fileLabelText.textContent = file.name;
+
+                const formData = new FormData();
+                formData.append("uploadedFile", file);
+
+                fetch("/send-payload", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then((response) => response.json())
+                    .then((data) => window.location.replace("r/"+data.id))
+                    .catch((error) => console.error("Upload failed:", error));
+
+                window.location.replace(data.redirect_url)
+            }
+
+            function handleTextSubmit(e) {
+                e.preventDefault();
+                const textForm = e.target;
+                if (!textForm.checkValidity()) {
+                    textForm.reportValidity();
+                    return;
+                }
+
+                const textInput = document.getElementById("textInput");
+                const text = textInput.value.trim();
+
+                fetch("/send-payload", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text })
+                })
+                    .then((response) => response.json())
+                    .then((data) => window.location.replace("r/"+data.id))
+                    .catch((error) => console.error("Send failed:", error));
+            }
+
             function bindPanelEvents() {
                 const receiveBtn = document.getElementById("receiveBtn");
                 const sendBtn = document.getElementById("sendBtn");
                 const backBtn = centralCard.querySelector('[data-action="back"]');
                 const serialForm = document.getElementById("serialForm");
                 const serialInput = document.getElementById("serialInput");
+                const textForm = document.getElementById("textForm");
+                const fileInput = document.getElementById("fileInput");
 
                 if (receiveBtn) receiveBtn.addEventListener("click", () => navigateTo("receive"));
                 if (sendBtn) sendBtn.addEventListener("click", () => navigateTo("send"));
                 if (backBtn) backBtn.addEventListener("click", () => navigateTo("menu"));
                 if (serialInput) serialInput.addEventListener("input", formatSerialInput);
+                if (fileInput) fileInput.addEventListener("change", handleFileSelected);
                 if (serialForm) {
                     serialForm.addEventListener("submit", (e) => {
                         e.preventDefault();
@@ -262,6 +324,7 @@
                         }
                     });
                 }
+                if (textForm) textForm.addEventListener("submit", handleTextSubmit);
             }
 
             bindPanelEvents();

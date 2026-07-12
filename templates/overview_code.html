@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <style>
+        body {
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-style: normal;
+        }
+        </style>
+    </head>
+     <body class="bg-slate-300 w-full h-full overflow-x-hidden">
+            <div class="min-w-screen min-h-screen flex items-center justify-center">
+                <div class="flex flex-row gap-4">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-600">Share your files to another device.</h1>
+                        <p class="text-md text-slate-600"> {{ text }}</p>
+                        <button class="bg-red-400 p-2 rounded-md font-bold text-white hidden">CANCEL</button>
+                    </div>
+                    <div class="w-100 h-100 bg-white rounded-2xl flex flex-col items-center pt-3">
+                        <h1 class="text-2xl font-bold"> QRCODE </h1>
+                         <img id="qrcode-img" class="responsive-img" 
+                            alt="Dynamic QR Code" 
+                            width="300" 
+                            height="300">
+                        <h1 class="text-4xl font-bold"> {{ code }}</h1>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const code = "{{ code }}";
+                    const targetUrl = `{{ current_url }}receive/${code}`;
+                    const imgElement = document.getElementById('qrcode-img');
+
+                    QRCode.toDataURL(targetUrl, { width: 300, margin: 2 }, function (err, src) {
+                        if (!err) {
+                            imgElement.src = src;
+                        }
+                    });
+                });
+            </script>
+     </body>
+</html>
