@@ -44,7 +44,7 @@ def send():
 
 @main_routes.route('/receive/<code_id>', methods=['GET'])
 def receive_payload(code_id):
-    if len(code_id) != 6:
+    if len(code_id) <= 6:
         return jsonify(code=400, status="error", message="Invalid code format"), 400
 
     target_path = None
