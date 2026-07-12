@@ -1,6 +1,6 @@
 # constants.py
 from typing import Final
-from enum import Enum
 
+# Modify there before using another domain.
 URL: Final = "https://quackfile.squareweb.app/"
 TEMP_PATH: Final = "temp/"
