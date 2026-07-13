@@ -5,7 +5,7 @@ from routes import main_routes
 from asgiref.wsgi import WsgiToAsgi
 
 app = Flask(__name__)
-app.debug = False
+app.debug = True
 asgi_app = WsgiToAsgi(app)
 
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
