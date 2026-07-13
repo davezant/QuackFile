@@ -20,10 +20,7 @@ def bad_request(e):
 def page_not_found(e):
     return render_template("error.html", error=404, msg="Page not found.")
 
-
 if __name__ == "__main__":
-    
-    
     if app.debug:
         from livereload import Server
 
@@ -35,10 +32,9 @@ if __name__ == "__main__":
         server.watch("templates/*.html")
         server.watch("static/**/*.*")
         server.watch("app.py")
-        
+
         server.serve(host="127.0.0.1", port=5000)
-    else:
-        
+    else:    
         uvicorn.run(
             "app:asgi_app",
             host="0.0.0.0",
