@@ -1,7 +1,7 @@
 # QuackFile
 
 A temporary, encrypted file-sharing server. It stores payloads for up to 180 seconds.
-
+[Demo](https://quackfile.squareweb.app/)
 ###### Most tools for quick sharing store metadata or human-readable content on the server disk. QuackFile intercepts data in memory, applies Fernet symmetric encryption, and writes only the ciphertext to storage. The decryption key stays exclusively in the server quick memory and vanishes forever once the file is downloaded or reaches the 180-second timeout.
 
 ### Features
